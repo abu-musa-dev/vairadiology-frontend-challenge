@@ -1,9 +1,10 @@
+// src/context/dateStore.ts
 import { create } from 'zustand';
 
-type DateStore = {
+interface DateStore {
   selectedDate: string;
   setSelectedDate: (date: string) => void;
-};
+}
 
 export const useDateStore = create<DateStore>((set) => ({
   selectedDate: new Date().toISOString().split('T')[0],
