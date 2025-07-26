@@ -10,16 +10,26 @@ const AppRouter: React.FC = () => {
   return (
     <Router>
       <Routes>
-        {/* Layout এর মধ্যে সব পেজ */}
+        {/* Wrap all main pages inside the MainLayout */}
         <Route element={<MainLayout />}>
+          {/* Redirect root path to /tasks */}
           <Route path="/" element={<Navigate to="/tasks" replace />} />
+          
+          {/* Define routes for main pages */}
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/annotate" element={<Annotate />} />
         </Route>
 
-        {/* 404 Page */}
-        <Route path="*" element={<div className="p-4 text-center">Page Not Found</div>} />
+        {/* Fallback 404 page for unmatched routes */}
+        <Route
+          path="*"
+          element={
+            <div className="p-4 text-center text-red-600 font-semibold text-lg">
+              404 - Page Not Found
+            </div>
+          }
+        />
       </Routes>
     </Router>
   );

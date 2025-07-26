@@ -13,7 +13,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A569BD'];
 const Dashboard: React.FC = () => {
   const tasks = useTaskStore((state) => state.tasks);
 
-  // ১. Number of tasks per status (bar chart)
+  // 1. Number of tasks per status (bar chart)
   const tasksPerStatus = useMemo(() => {
     const counts: Record<string, number> = { todo: 0, inprogress: 0, done: 0 };
     tasks.forEach((task) => {
@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
     }));
   }, [tasks]);
 
-  // ২. Number of tasks completed per day (line chart)
+  // 2. Number of tasks completed per day (line chart)
   const tasksCompletedPerDay = useMemo(() => {
     const doneTasks = tasks.filter((task) => task.status === 'done');
     const countsByDate: Record<string, number> = {};
@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
     }));
   }, [tasks]);
 
-  // ৩. Pie chart of tasks by tag or priority
+  // 3. Pie chart of tasks by tag or priority
   // Let's do pie by priority here for simplicity, you can switch to tags similarly
   const tasksByPriority = useMemo(() => {
     const counts: Record<string, number> = {};

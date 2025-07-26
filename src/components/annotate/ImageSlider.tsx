@@ -1,27 +1,51 @@
-import React from 'react';
+import React from "react";
 
-const ImageSlider = ({
+interface ImageSliderProps {
+  images: string[];           // List of image URLs
+  currentIndex: number;       // Currently selected image index
+  setIndex: (index: number) => void;  // Function to update the current index
+}
+
+const ImageSlider: React.FC<ImageSliderProps> = ({
   images,
   currentIndex,
   setIndex,
-}: {
-  images: string[];
-  currentIndex: number;
-  setIndex: (i: number) => void;
 }) => {
+  // Show previous image; loops to last image if current is first
+  const prev = () =>
+    setIndex(currentIndex === 0 ? images.length - 1 : currentIndex - 1);
+
+  // Show next image; loops to first image if current is last
+  const next = () =>
+    setIndex(currentIndex === images.length - 1 ? 0 : currentIndex + 1);
+
   return (
-    <div className="flex overflow-x-auto space-x-2 py-2">
-      {images.map((src, i) => (
-        <img
-          key={i}
-          src={src}
-          alt={`image-${i}`}
-          className={`w-24 h-24 object-cover cursor-pointer border-2 ${
-            i === currentIndex ? 'border-blue-500' : 'border-transparent'
-          }`}
-          onClick={() => setIndex(i)}
-        />
-      ))}
+    <div className="flex items-center justify-center space-x-6">
+      {/* Previous button */}
+      <button
+        onClick={prev}
+        aria-label="Previous Image"
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Prev
+      </button>
+
+      {/* Current image display */}
+      <img
+        src={images[currentIndex]}
+        alt={`Slide ${currentIndex + 1}`}
+        className="max-h-72 rounded-lg shadow-md object-contain"
+        draggable={false}  // Disable drag to avoid accidental dragging on desktop
+      />
+
+      {/* Next button */}
+      <button
+        onClick={next}
+        aria-label="Next Image"
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+      >
+        Next
+      </button>
     </div>
   );
 };

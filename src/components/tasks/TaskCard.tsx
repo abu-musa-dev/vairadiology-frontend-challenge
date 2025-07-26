@@ -7,17 +7,28 @@ interface TaskProps {
   tags: string[];
 }
 
-const TaskCard = ({ title, priority, dueDate, tags }: TaskProps) => {
+/**
+ * TaskCard Component
+ * Displays individual task details: title, priority, due date, and tags.
+ */
+const TaskCard: React.FC<TaskProps> = ({ title, priority, dueDate, tags }) => {
   return (
     <div className="bg-white dark:bg-gray-900 rounded p-3 shadow">
+      {/* Task Title */}
       <h3 className="font-semibold text-base">{title}</h3>
-      <p className="text-sm text-gray-500">Priority: {priority}</p>
-      <p className="text-sm text-gray-500">Due: {dueDate}</p>
+
+      {/* Task Priority */}
+      <p className="text-sm text-gray-500 dark:text-gray-400">Priority: {priority}</p>
+
+      {/* Due Date */}
+      <p className="text-sm text-gray-500 dark:text-gray-400">Due: {dueDate}</p>
+
+      {/* Tags */}
       <div className="flex gap-1 flex-wrap mt-1">
-        {tags.map((tag, i) => (
+        {tags.map((tag, index) => (
           <span
-            key={i}
-            className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded"
+            key={index}
+            className="bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 text-xs font-medium px-2 py-0.5 rounded"
           >
             {tag}
           </span>
