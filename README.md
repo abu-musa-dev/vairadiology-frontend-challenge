@@ -5,7 +5,7 @@
 ✅ **Data Visualization (Dashboard)**  
 ✅ **Image Annotation Tool**
 
-🌐 Live Demo: [https://vairadiology-frontend-challenge.vercel.app](https://vairadiology-frontend-challenge.vercel.app)  |  📦 GitHub Repository: [https://github.com/abu-musa-dev/vairadiology-frontend-challenge](https://github.com/abu-musa-dev/vairadiology-frontend-challenge)
+🌐 Live Demo: [https://vairadiology-frontend-challenge.vercel.app](https://vairadiology-frontend-challenge.vercel.app)
 
 ---
 
