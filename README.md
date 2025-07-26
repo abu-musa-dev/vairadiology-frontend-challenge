@@ -5,7 +5,7 @@
 ✅ **Data Visualization (Dashboard)**  
 ✅ **Image Annotation Tool**
 
-🌐 Live Demo: [https://vairadiology-frontend-challenge.vercel.app](https://vairadiology-frontend-challenge.vercel.app)
+🌐 **Live Demo:** [https://taskmanager-plus.netlify.app/tasks](https://taskmanager-plus.netlify.app/tasks)
 
 ---
 
