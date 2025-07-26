@@ -5,7 +5,7 @@
 ✅ **Data Visualization (Dashboard)**  
 ✅ **Image Annotation Tool**
 
-🌐 **Live Demo:** [https://taskmanager-plus.netlify.app/tasks](https://taskmanager-plus.netlify.app/tasks)
+🌐 **Live Demo:** [https://taskmanager-plus.netlify.app/](https://taskmanager-plus.netlify.app/)
 
 ---
 
