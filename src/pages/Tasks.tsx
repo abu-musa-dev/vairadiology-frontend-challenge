@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
@@ -10,36 +10,50 @@ import { useTaskStore, Task } from "../context/taskStore";
 import DateSelector from "../components/common/DateSelector";
 import Modal from "../components/common/Modal";
 
+// Status columns for Kanban
 const statusColumns = [
   { id: "todo", title: "To Do" },
   { id: "inprogress", title: "In Progress" },
   { id: "done", title: "Done" },
 ];
 
-// Define allowed priorities as a constant tuple
+// Allowed priorities
 const priorities = ["low", "medium", "high"] as const;
 
 const Tasks: React.FC = () => {
-  // Zustand stores for selected date and tasks management
+  // Zustand stores
   const selectedDate = useDateStore((state) => state.selectedDate);
   const setSelectedDate = useDateStore((state) => state.setSelectedDate);
 
+  // Local loading state for tasks loading
+  const [loading, setLoading] = useState(true);
+
+  // Tasks state managed inside Zustand, but we simulate loading here
   const tasks = useTaskStore((state) =>
-    // Filter tasks for the selected date
     state.tasks.filter((task) => task.dueDate === selectedDate)
   );
   const addTask = useTaskStore((state) => state.addTask);
   const updateTask = useTaskStore((state) => state.updateTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
 
-  // Modal & form state management
+  // Modal and form states
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<typeof priorities[number]>("medium");
   const [tags, setTags] = useState("");
 
-  // Open modal for creating a new task
+  // Simulate loading tasks from localStorage or async source
+  useEffect(() => {
+    setLoading(true);
+    // Simulate delay, in reality Zustand loads from LocalStorage or similar
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 500); // half second delay
+    return () => clearTimeout(timeout);
+  }, [selectedDate]);
+
+  // Open modal for new task
   const openNewTaskModal = () => {
     setEditingTask(null);
     setTitle("");
@@ -48,7 +62,7 @@ const Tasks: React.FC = () => {
     setModalOpen(true);
   };
 
-  // Open modal to edit an existing task with prefilled data
+  // Open modal to edit task
   const openEditTaskModal = (task: Task) => {
     setEditingTask(task);
     setTitle(task.title);
@@ -57,7 +71,7 @@ const Tasks: React.FC = () => {
     setModalOpen(true);
   };
 
-  // Save task either by adding or updating
+  // Save task handler
   const handleSave = () => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
@@ -65,21 +79,18 @@ const Tasks: React.FC = () => {
       return;
     }
 
-    // Convert comma separated tags string to array of trimmed non-empty strings
     const tagsArray = tags
       .split(",")
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
     if (editingTask) {
-      // Update existing task
       updateTask(editingTask.id, {
         title: trimmedTitle,
         priority,
         tags: tagsArray,
       });
     } else {
-      // Add new task with unique ID and default status 'todo'
       addTask({
         id: crypto.randomUUID(),
         title: trimmedTitle,
@@ -92,12 +103,11 @@ const Tasks: React.FC = () => {
     setModalOpen(false);
   };
 
-  // Handle drag and drop between columns
+  // Handle drag and drop
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination, draggableId } = result;
 
-    // Update task status only if dropped in different column
     if (source.droppableId !== destination.droppableId) {
       updateTask(draggableId, {
         status: destination.droppableId as Task["status"],
@@ -105,7 +115,7 @@ const Tasks: React.FC = () => {
     }
   };
 
-  // Group tasks by status for easy rendering per column
+  // Group tasks by status
   const tasksByStatus: Record<string, Task[]> = {
     todo: [],
     inprogress: [],
@@ -115,9 +125,40 @@ const Tasks: React.FC = () => {
     tasksByStatus[task.status]?.push(task);
   });
 
+  // Loading UI
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        {/* Simple spinner using Tailwind */}
+        <svg
+          className="animate-spin -ml-1 mr-3 h-10 w-10 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-label="Loading"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+        <p className="text-blue-600 text-lg font-semibold">Loading tasks...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
-      {/* Top bar with date selector and add task button */}
+      {/* Top bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
         <button
@@ -128,7 +169,7 @@ const Tasks: React.FC = () => {
         </button>
       </div>
 
-      {/* Kanban board with drag-and-drop context */}
+      {/* Kanban board */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="mt-4 pb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {statusColumns.map((column) => (
@@ -189,7 +230,7 @@ const Tasks: React.FC = () => {
         </div>
       </DragDropContext>
 
-      {/* Modal for add/edit task form */}
+      {/* Modal for add/edit */}
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -211,7 +252,7 @@ const Tasks: React.FC = () => {
           </div>
         }
       >
-        {/* Form inputs inside modal */}
+        {/* Form inputs */}
         <div className="flex flex-col gap-3 w-full sm:w-[400px]">
           <input
             type="text"

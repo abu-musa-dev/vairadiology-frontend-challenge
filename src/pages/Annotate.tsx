@@ -1,7 +1,34 @@
 import React, { useState, useEffect } from "react";
 import ImageAnnotator from "../components/annotate/ImageAnnotator";
 
-// Array of image URLs stored in the public/images folder
+// Simple Loader spinner component
+const Loader: React.FC = () => (
+  <div role="status" aria-live="polite" className="text-center py-10">
+    <svg
+      className="animate-spin h-8 w-8 text-blue-600 mx-auto"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      ></circle>
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+      ></path>
+    </svg>
+    <span className="sr-only">Loading images...</span>
+  </div>
+);
+
 const images = [
   "/images/x-ray-2.jpg",
   "/images/x-ray.jpeg",
@@ -20,13 +47,10 @@ const images = [
 type AnnotationsType = Record<string, number[][][]>;
 
 const Annotate: React.FC = () => {
-  // Holds the index of the currently selected image
   const [currentIndex, setCurrentIndex] = useState(0);
-  
-  // Stores annotations for each image, keyed by image URL
   const [annotations, setAnnotations] = useState<AnnotationsType>({});
+  const [loading, setLoading] = useState(true);
 
-  // Load saved annotations from localStorage on component mount
   useEffect(() => {
     const stored = localStorage.getItem("annotations");
     if (stored) {
@@ -38,15 +62,19 @@ const Annotate: React.FC = () => {
     }
   }, []);
 
-  // Save annotations to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("annotations", JSON.stringify(annotations));
   }, [annotations]);
 
-  // The URL of the current image
+  // Simulate image loading delay
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 300); // fake loading 300ms
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
+
   const currentImage = images[currentIndex];
 
-  // Add a new polygon annotation to the current image
   const handleAddPolygon = (points: number[][]) => {
     setAnnotations((prev) => ({
       ...prev,
@@ -54,7 +82,6 @@ const Annotate: React.FC = () => {
     }));
   };
 
-  // Remove a polygon annotation by its index for the current image
   const handleRemovePolygon = (polygonIndex: number) => {
     setAnnotations((prev) => {
       if (!prev[currentImage]) return prev;
@@ -67,38 +94,57 @@ const Annotate: React.FC = () => {
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
-      {/* Page title */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-center">
+      <h1
+        className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-center"
+        tabIndex={0}
+        aria-label="Image Annotation Tool Heading"
+      >
         Image Annotation Tool
       </h1>
 
-      {/* Thumbnail slider for image selection */}
-      <div className="flex overflow-x-auto space-x-2 p-2 mb-6 border rounded bg-gray-100 dark:bg-gray-800">
+      {/* Thumbnail slider */}
+      <div
+        className="flex overflow-x-auto space-x-2 p-2 mb-6 border rounded bg-gray-100 dark:bg-gray-800"
+        role="list"
+        aria-label="Image thumbnails list"
+      >
         {images.map((img, index) => (
           <img
             key={index}
             src={img}
-            alt={`Thumbnail ${index + 1}`}
-            className={`w-24 h-20 object-cover rounded cursor-pointer border-2 ${
-              currentIndex === index ? "border-blue-500" : "border-transparent"
+            alt={`Thumbnail image ${index + 1}`}
+            className={`w-24 h-20 object-cover rounded cursor-pointer border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              currentIndex === index
+                ? "border-blue-500 scale-105"
+                : "border-transparent hover:scale-105"
             }`}
-            onClick={() => setCurrentIndex(index)} // Change current image on thumbnail click
-            draggable={false} // Disable drag to prevent accidental dragging
+            onClick={() => setCurrentIndex(index)}
+            draggable={false}
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") setCurrentIndex(index);
+            }}
+            role="listitem"
+            aria-current={currentIndex === index ? "true" : undefined}
           />
         ))}
       </div>
 
-      {/* Image annotator component */}
-      <div className="bg-white dark:bg-gray-900 shadow-md rounded-lg border p-2 sm:p-4 md:p-6">
-        <div className="relative w-full overflow-hidden">
-          <ImageAnnotator
-            imageSrc={currentImage} // Current image to annotate
-            polygons={annotations[currentImage] || []} // Annotations (polygons) for current image
-            onAddPolygon={handleAddPolygon} // Callback to add new polygon
-            onRemovePolygon={handleRemovePolygon} // Callback to remove polygon
-          />
+      {/* Show loader while image is "loading" */}
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="bg-white dark:bg-gray-900 shadow-md rounded-lg border p-2 sm:p-4 md:p-6">
+          <div className="relative w-full overflow-hidden">
+            <ImageAnnotator
+              imageSrc={currentImage}
+              polygons={annotations[currentImage] || []}
+              onAddPolygon={handleAddPolygon}
+              onRemovePolygon={handleRemovePolygon}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

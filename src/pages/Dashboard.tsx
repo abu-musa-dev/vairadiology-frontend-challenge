@@ -1,5 +1,5 @@
-// src/pages/Dashboard.tsx
-import React, { useMemo } from 'react';
+
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTaskStore, Task } from '../context/taskStore';
 import ChartCard from '../components/common/ChartCard';
 
@@ -11,9 +11,31 @@ import {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A569BD'];
 
 const Dashboard: React.FC = () => {
+  // Local states for loading and error
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get tasks from Zustand store
   const tasks = useTaskStore((state) => state.tasks);
 
-  // 1. Number of tasks per status (bar chart)
+  // Simulate loading (replace with real async if needed)
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Simulate data fetch delay
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    } catch (err) {
+      setError('Failed to load task data.');
+      setLoading(false);
+    }
+  }, [tasks]);
+
+  // Memoized data transformations
   const tasksPerStatus = useMemo(() => {
     const counts: Record<string, number> = { todo: 0, inprogress: 0, done: 0 };
     tasks.forEach((task) => {
@@ -25,14 +47,12 @@ const Dashboard: React.FC = () => {
     }));
   }, [tasks]);
 
-  // 2. Number of tasks completed per day (line chart)
   const tasksCompletedPerDay = useMemo(() => {
     const doneTasks = tasks.filter((task) => task.status === 'done');
     const countsByDate: Record<string, number> = {};
     doneTasks.forEach((task) => {
       countsByDate[task.dueDate] = (countsByDate[task.dueDate] || 0) + 1;
     });
-    // Sort dates ascending
     const sortedDates = Object.keys(countsByDate).sort();
     return sortedDates.map((date) => ({
       date,
@@ -40,8 +60,6 @@ const Dashboard: React.FC = () => {
     }));
   }, [tasks]);
 
-  // 3. Pie chart of tasks by tag or priority
-  // Let's do pie by priority here for simplicity, you can switch to tags similarly
   const tasksByPriority = useMemo(() => {
     const counts: Record<string, number> = {};
     tasks.forEach((task) => {
@@ -52,6 +70,43 @@ const Dashboard: React.FC = () => {
       value: count,
     }));
   }, [tasks]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <svg
+          className="animate-spin -ml-1 mr-3 h-10 w-10 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-label="Loading"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          ></path>
+        </svg>
+        <p className="text-blue-600 text-lg font-semibold">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-red-600 text-center py-10">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
