@@ -5,6 +5,7 @@ import Tasks from "../pages/Tasks";
 import Dashboard from "../pages/Dashboard";
 import Annotate from "../pages/Annotate";
 import MainLayout from "../layouts/MainLayout";
+import NotFoundPage from "../pages/NotFoundPage";
 
 const AppRouter: React.FC = () => {
   return (
@@ -22,14 +23,7 @@ const AppRouter: React.FC = () => {
         </Route>
 
         {/* Fallback 404 page for unmatched routes */}
-        <Route
-          path="*"
-          element={
-            <div className="p-4 text-center text-red-600 font-semibold text-lg">
-              404 - Page Not Found
-            </div>
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
